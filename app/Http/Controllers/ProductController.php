@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -16,7 +17,7 @@ class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::all();
+        $products = Product::with(['category', 'user'])->get();
 
         return view('product.index', compact('products'));
     }
@@ -59,8 +60,9 @@ class ProductController extends Controller
     public function create()
     {
         $users = User::orderBy('name')->get();
+        $categories = Category::orderBy('name')->get();
 
-        return view('product.create', compact('users'));
+        return view('product.create', compact('users', 'categories'));
     }
 
     public function show($id)
@@ -116,8 +118,9 @@ class ProductController extends Controller
         Gate::authorize('update', $product);
 
         $users = User::orderBy('name')->get();
+        $categories = Category::orderBy('name')->get();
 
-        return view('product.edit', compact('product', 'users'));
+        return view('product.edit', compact('product', 'users', 'categories'));
     }
 
     public function delete($id)
@@ -129,5 +132,45 @@ class ProductController extends Controller
         $product->delete();
 
         return redirect()->route('product.index')->with('success','Product berhasil dihapus');
+    }
+
+    public function export()
+    {
+        $products = Product::with(['category', 'user'])->get();
+
+        $filename = 'products_' . now()->format('Ymd_His') . '.csv';
+
+        $headers = [
+            'Content-Type'        => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Pragma'              => 'no-cache',
+            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires'             => '0',
+        ];
+
+        $callback = function () use ($products) {
+            $handle = fopen('php://output', 'w');
+
+            // BOM for Excel UTF-8 compatibility
+            fputs($handle, "\xEF\xBB\xBF");
+
+            // Header row
+            fputcsv($handle, ['No', 'Nama Produk', 'Kategori', 'Qty', 'Harga', 'Owner']);
+
+            foreach ($products as $index => $product) {
+                fputcsv($handle, [
+                    $index + 1,
+                    $product->name,
+                    $product->category->name ?? '-',
+                    $product->qty,
+                    $product->price,
+                    $product->user->name ?? '-',
+                ]);
+            }
+
+            fclose($handle);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }

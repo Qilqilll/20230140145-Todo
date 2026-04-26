@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="py-12">
         <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="bg-gray-900/50 backdrop-blur-sm border border-gray-800 overflow-hidden shadow-2xl sm:rounded-2xl">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
 
                     {{-- Header --}}
@@ -23,9 +23,13 @@
 
                         {{-- Action Buttons --}}
                         <div class="flex items-center gap-2">
+                            @can('update', $product)
                             <x-edit-button :url="route('product.edit', $product)" />
+                            @endcan
 
+                            @can('delete', $product)
                             <x-delete-button :url="route('product.delete', $product->id)" confirmMessage="Are you sure you want to delete this product?" />
+                            @endcan
                         </div>
                     </div>
 

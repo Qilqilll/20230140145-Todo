@@ -1,14 +1,14 @@
 <x-app-layout>
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
+            <div class="bg-gray-900/50 backdrop-blur-sm border border-gray-800 overflow-hidden shadow-2xl sm:rounded-2xl">
+                <div class="p-6 text-gray-100">
 
                     {{-- Header --}}
                     <div class="flex items-center justify-between mb-6">
                         <div>
-                            <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 tracking-tight">Product List</h2>
-                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage your product inventory</p>
+                            <h2 class="text-2xl font-bold text-gray-100 tracking-tight">Product List</h2>
+                            <p class="text-sm text-gray-400 mt-1">Manage your product inventory</p>
                         </div>
                         <div class="flex gap-2">
                             @can('export-product')
@@ -38,31 +38,34 @@
                     @endif
 
                     {{-- Table --}}
-                    <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
-                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
-                            <thead class="bg-gray-50 dark:bg-gray-700/50">
+                    <div class="overflow-x-auto rounded-xl border border-gray-800">
+                        <table class="min-w-full divide-y divide-gray-800 text-sm">
+                            <thead class="bg-gray-800/50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider w-12">
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider w-12">
                                     No
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
                                     Name
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                                    Category
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
                                     Quantity
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
                                     Price
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
                                     User
                                 </th>
-                                <th class="px-6 py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider w-32">
+                                <th class="px-6 py-3 text-center text-xs font-semibold text-gray-400 uppercase tracking-wider w-32">
                                     Actions
                                 </th>
                             </tr>
                             </thead>
-                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            <tbody class="bg-transparent divide-y divide-gray-800">
                             @forelse ($products as $product)
                                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition duration-150">
                                     <td class="px-6 py-4 text-gray-500 dark:text-gray-400">
@@ -70,6 +73,9 @@
                                     </td>
                                     <td class="px-6 py-4 font-medium text-gray-900 dark:text-gray-100">
                                         {{ $product->name }}
+                                    </td>
+                                    <td class="px-6 py-4 text-gray-500 dark:text-gray-400">
+                                        {{ $product->category->name ?? '-' }}
                                     </td>
                                     <td class="px-6 py-4 text-gray-500 dark:text-gray-400">
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $product->qty > 10 ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' }}">
@@ -99,6 +105,7 @@
                                                 </svg>
                                             </a>
                                             {{-- Edit --}}
+                                            @can('update', $product)
                                             <a href="{{ route('product.edit', $product->id) }}"
                                                class="p-1.5 rounded-md text-gray-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/30 transition"
                                                title="Edit">
@@ -109,7 +116,15 @@
                                                           d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                 </svg>
                                             </a>
+                                            @else
+                                            <span class="p-1.5 rounded-md text-gray-600 cursor-not-allowed" title="Tidak punya izin edit">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                                </svg>
+                                            </span>
+                                            @endcan
                                             {{-- Delete --}}
+                                            @can('delete', $product)
                                             <form action="{{ route('product.delete', $product->id) }}" method="POST"
                                                   onsubmit="return confirm('Delete this product?');"
                                                   class="inline-block">
@@ -126,12 +141,20 @@
                                                     </svg>
                                                 </button>
                                             </form>
+                                            @else
+                                            <span class="p-1.5 rounded-md text-gray-600 cursor-not-allowed" title="Tidak punya izin hapus">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                                </svg>
+                                            </span>
+                                            @endcan
                                         </div>
                                     </td>
+
                                 </tr>
                             @empty
-                                <tr>
-                                    <td colspan="6"
+                                <tr class="bg-white dark:bg-gray-800">
+                                    <td colspan="7"
                                         class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                                         <svg xmlns="http://www.w3.org/2000/svg"
                                              class="h-12 w-12 mx-auto mb-4 opacity-40" fill="none"
